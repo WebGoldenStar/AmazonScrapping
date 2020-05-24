@@ -1,10 +1,13 @@
-const chrome = require('chrome-aws-lambda');
+const chromium = require('chrome-aws-lambda');
 const mysql = require("mysql");
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 let request = require("request");
 let cheerio = require("cheerio");
 require('dotenv').config('.env');
+const getChromePath = require('@browserless/aws-lambda-chrome')({
+  path: '/tmp'
+})
 let url = "https://www.googleapis.com/customsearch/v1?key=AIzaSyCQkRyzDU6OKU8RkRcG3FRyNKdgWUVA5dU&cx=003429913069680451282:ffpf7-envl0&q=site:amazon.com/shop";
 let amazonUrls = [];
 let userInfo = {};
@@ -433,10 +436,12 @@ async function getAllShopsInfo() {
     }
     //amazonUrls = await getUrls();
     console.log("Length of Amazon", amazonUrls.length);
-    const browser = await puppeteer.launch({
-        args: chrome.args,
-        executablePath: await chrome.executablePath,
-        headless: chrome.headless
+    const browser = await chromium.puppeteer.launch({
+      args: chromium.args,
+      defaultViewport: chromium.defaultViewport,
+      executablePath: await chromium.executablePath,
+      headless: chromium.headless,
+      ignoreHTTPSErrors: true,
     });
     const page = await browser.newPage();
         const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/bnbob01");
