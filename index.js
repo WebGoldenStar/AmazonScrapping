@@ -413,7 +413,7 @@ async function fetchInfo(page, amazonUrl) {
         return userInfo;
 
     } catch (error) {
-        // console.log(err);
+        console.log(error);
         await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
     }
 }
@@ -451,7 +451,7 @@ async function getAllShopsInfo() {
     // });
     // const context = await browser.createIncognitoBrowserContext();
     // const page = await context.newPage();
-    page.setViewport({ width: 1080, height: 926 });
+    // page.setViewport({ width: 1080, height: 926 });
 
     for (let i = 1; i < amazonUrls.length; i++) {
         const userInfo = await fetchInfo(page, amazonUrls[i]);
