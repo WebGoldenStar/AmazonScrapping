@@ -149,10 +149,7 @@ module.exports.scrape = async() => {
         database: process.env.RDS_SCHEMA // use the specified database
     });
 
-    const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
-        headless: false,
-        args: ['--headless']
-    } : {
+    const browser = await puppeteer.launch({
         args: chrome.args,
         executablePath: await chrome.executablePath,
         headless: chrome.headless
