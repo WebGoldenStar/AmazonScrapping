@@ -2,6 +2,7 @@ const chromium = require('chrome-aws-lambda');
 const mysql = require("mysql");
 const axios = require('axios');
 const puppeteer = require('puppeteer');
+const puppeteerLambda = require('puppeteer-lambda');
 let request = require("request");
 let cheerio = require("cheerio");
 require('dotenv').config('.env');
@@ -434,12 +435,8 @@ async function getAllShopsInfo() {
     }
     //amazonUrls = await getUrls();
     console.log("Length of Amazon", amazonUrls.length);
-    const browser = await chromium.puppeteer.launch({
-        args: chromium.args,
-        defaultViewport: chromium.defaultViewport,
-        executablePath: await chromium.executablePath,
-        headless: chromium.headless,
-        ignoreHTTPSErrors: true,
+    const browser = await puppeteerLambda.getBrowser({
+        headless: true
     });
     const page = await browser.newPage();
     const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/bnbob01");
