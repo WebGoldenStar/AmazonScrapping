@@ -433,15 +433,19 @@ async function getAllShopsInfo() {
     } catch (error) {
         console.error(error);
     }
-    //amazonUrls = await getUrls();
+    amazonUrls = await getUrls();
     const executablePath = await extract();
     console.log("Length of Amazon", amazonUrls.length);
-    const browser = await puppeteer.launch({
-        args: ['--no-sandbox'],
-        executablePath,
-        headless: true
+    const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
+        headless: false
+    } : {
+        args: chrome.args,
+        executablePath: await chrome.executablePath,
+        headless: chrome.headless
     });
     const page = await browser.newPage();
+    // for (let i = 3; i < amazonUrls.length; i++) {
+    //     const userInfo = await fetchInfo(page, amazonUrls[i]);
     const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/bnbob01");
     let amazonShops = {};
     let categoryJson = {};
@@ -511,7 +515,7 @@ async function getAllShopsInfo() {
             }
         }
     );
-    //}
+    // }
     page.close();
 
 

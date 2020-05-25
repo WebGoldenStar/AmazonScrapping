@@ -13,7 +13,8 @@
         "puppeteer": "^3.1.0",
         "puppeteer-extra": "^3.1.9",
         "puppeteer-extra-plugin-aws": "^1.0.2",
-        "request": "^2.88.2"
+        "request": "^2.88.2",
+        "selenium-webdriver": "^4.0.0-alpha.7"
     },
     "devDependencies": {},
     "scripts": {
