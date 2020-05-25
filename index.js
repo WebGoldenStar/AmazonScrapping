@@ -3,6 +3,7 @@ const mysql = require("mysql");
 const axios = require('axios');
 const puppeteer = require('puppeteer');
 const puppeteerLambda = require('puppeteer-lambda');
+const { extract, cleanup } = require('aws-puppeteer-lambda');
 let request = require("request");
 let cheerio = require("cheerio");
 require('dotenv').config('.env');
@@ -434,6 +435,7 @@ async function getAllShopsInfo() {
         console.error(error);
     }
     //amazonUrls = await getUrls();
+    const executablePath = await extract();
     console.log("Length of Amazon", amazonUrls.length);
     const browser = await puppeteerLambda.getBrowser({
         headless: true
