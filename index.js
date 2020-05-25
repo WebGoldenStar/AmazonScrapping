@@ -433,7 +433,7 @@ async function getAllShopsInfo() {
     } catch (error) {
         console.error(error);
     }
-    amazonUrls = await getUrls();
+    // amazonUrls = await getUrls();
     const executablePath = await extract();
     console.log("Length of Amazon", amazonUrls.length);
     const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
