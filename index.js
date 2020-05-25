@@ -437,8 +437,12 @@ async function getAllShopsInfo() {
     //amazonUrls = await getUrls();
     const executablePath = await extract();
     console.log("Length of Amazon", amazonUrls.length);
-    const browser = await puppeteerLambda.getBrowser({
+    const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
         headless: true
+    } : {
+        args: chrome.args,
+        executablePath,
+        headless: chrome.headless
     });
     const page = await browser.newPage();
     const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/bnbob01");
