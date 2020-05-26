@@ -88,13 +88,14 @@ async function getCategory(url) {
 async function fetchInfo(page, amazonUrl) {
     try {
         userInfo = {};
+	console.log(amazonUrl);
         await page.goto(amazonUrl, {
             waitUntil: 'networkidle0',
             // Remove the timeout
             timeout: 15000
         });
-	await page.screenshot({ path: 'screenshot1.png', fullPage: true });
-
+	await page.screenshot({ path: 'screenshot2.png', fullPage: true });
+	console.log("---finish screnshot---");
         try {
             await page.waitForSelector('.shop-affiliate-profile-logo-image');
         } catch (error) {
@@ -441,12 +442,7 @@ async function getAllShopsInfo() {
     // amazonUrls = await getUrls();
     //const executablePath = await extract();
     console.log("Length of Amazon",await chrome.executablePath);
-    const browser = await puppeteer.launch({
-        args: ['--no-sandbox', '--disable-setuid-sandbox'],
-        executablePath: '/usr/bin/google-chrome-stable',
-        headless: true
-    });
-	console.log(chrome.headless);
+    const browser = await puppeteer.launch({executablePath: '/usr/bin/google-chrome-stable',headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
     const page = await browser.newPage();
     // for (let i = 3; i < amazonUrls.length; i++) {
     //     const userInfo = await fetchInfo(page, amazonUrls[i]);
