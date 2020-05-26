@@ -89,12 +89,8 @@ async function fetchInfo(page, amazonUrl) {
     try {
         userInfo = {};
 	console.log(amazonUrl);
-        await page.goto(amazonUrl, {
-            waitUntil: 'networkidle0',
-            // Remove the timeout
-            timeout: 15000
-        });
-	await page.screenshot({ path: 'screenshot2.png', fullPage: true });
+        await page.goto(amazonUrl);
+	await page.screenshot({ path: 'screenshot3.png', fullPage: true });
 	console.log("---finish screnshot---");
         try {
             await page.waitForSelector('.shop-affiliate-profile-logo-image');
@@ -446,7 +442,7 @@ async function getAllShopsInfo() {
     const page = await browser.newPage();
     // for (let i = 3; i < amazonUrls.length; i++) {
     //     const userInfo = await fetchInfo(page, amazonUrls[i]);
-    const userInfo = await fetchInfo(page, "https://www.example.com");
+    const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/thehooverboys");
     let amazonShops = {};
     let categoryJson = {};
     amazonShops.ShopURL = userInfo.ShopURL ? userInfo.ShopURL : "";
