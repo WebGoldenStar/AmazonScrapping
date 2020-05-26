@@ -450,7 +450,7 @@ async function getAllShopsInfo() {
     const page = await browser.newPage();
     // for (let i = 3; i < amazonUrls.length; i++) {
     //     const userInfo = await fetchInfo(page, amazonUrls[i]);
-    const userInfo = await fetchInfo(page, "https://www.amazon.com/shop/bnbob01");
+    const userInfo = await fetchInfo(page, "https://www.example.com");
     let amazonShops = {};
     let categoryJson = {};
     amazonShops.ShopURL = userInfo.ShopURL ? userInfo.ShopURL : "";
