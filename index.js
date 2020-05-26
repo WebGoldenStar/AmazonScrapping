@@ -1,3 +1,4 @@
+'use strict'
 const chrome = require('chrome-aws-lambda');
 const mysql = require("mysql");
 const axios = require('axios');
