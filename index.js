@@ -92,6 +92,8 @@ async function fetchInfo(page, amazonUrl) {
             // Remove the timeout
             timeout: 15000
         });
+	await page.screenshot({ path: 'screenshot1.png', fullPage: true });
+
         try {
             await page.waitForSelector('.shop-affiliate-profile-logo-image');
         } catch (error) {
@@ -419,7 +421,9 @@ async function fetchInfo(page, amazonUrl) {
         await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
     }
 }
+
 async function getAllShopsInfo() {
+//module.exports.scrape = async () => {
 
     const connection = mysql.createConnection({
         host: process.env.DB_HOST, // ip address of server running mysql
@@ -434,15 +438,14 @@ async function getAllShopsInfo() {
         console.error(error);
     }
     // amazonUrls = await getUrls();
-    const executablePath = await extract();
-    console.log("Length of Amazon", amazonUrls.length);
-    const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
-        headless: false
-    } : {
-        args: chrome.args,
-        executablePath: await chrome.executablePath,
-        headless: chrome.headless
+    //const executablePath = await extract();
+    console.log("Length of Amazon",await chrome.executablePath);
+    const browser = await puppeteer.launch({
+        args: ['--no-sandbox', '--disable-setuid-sandbox'],
+        executablePath: '/usr/bin/google-chrome-stable',
+        headless: true
     });
+	console.log(chrome.headless);
     const page = await browser.newPage();
     // for (let i = 3; i < amazonUrls.length; i++) {
     //     const userInfo = await fetchInfo(page, amazonUrls[i]);
