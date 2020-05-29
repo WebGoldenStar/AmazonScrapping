@@ -1,4 +1,3 @@
-'use strict'
 const chrome = require('chrome-aws-lambda');
 const mysql = require("mysql");
 const axios = require('axios');
@@ -9,6 +8,7 @@ let cheerio = require("cheerio");
 require('dotenv').config('.env');
 
 let url = "https://www.googleapis.com/customsearch/v1?key=AIzaSyCQkRyzDU6OKU8RkRcG3FRyNKdgWUVA5dU&cx=003429913069680451282:ffpf7-envl0&q=site:amazon.com/shop";
+let BASE_URL = "https://api.scraperapi.com/?api_key=d2c53b8c758ee16a92d883d8a51af48d&url=";
 let amazonUrls = [];
 let userInfo = {};
 // Call API using Google Custom Seach API
@@ -88,10 +88,12 @@ async function getCategory(url) {
 async function fetchInfo(page, amazonUrl) {
     try {
         userInfo = {};
-	console.log(amazonUrl);
-        await page.goto(amazonUrl);
-	await page.screenshot({ path: 'liol.png', fullPage: true });
-	console.log("---finish screnshot---");
+        console.log(amazonUrl)
+        await page.goto(amazonUrl, {
+            waitUntil: 'networkidle0',
+            // Remove the timeout
+            timeout: 0
+        });
         try {
             await page.waitForSelector('.shop-affiliate-profile-logo-image');
         } catch (error) {
@@ -109,18 +111,24 @@ async function fetchInfo(page, amazonUrl) {
         userInfo.ProfileImage = ProfileImage;
         userInfo.Name = shopName.slice(0, -1);
 
-        console.log("----------Profile URL-----------------", influencerProfileLink);
+        console.log("----------Profile URL-----------------", BASE_URL + `https://amazon.com${influencerProfileLink}`);
 
-        await page.goto(`https://amazon.com/${influencerProfileLink}`, {
+        await page.goto(BASE_URL + `https://amazon.com${influencerProfileLink}`, {
+            waitUntil: 'networkidle0',
             // Remove the timeout
-            timeout: 15000
+            timeout: 0
         });
-
+	await page.screenshot({
+    	path: "shot.jpg",
+    	type: "jpeg",
+    	fullPage: true
+ 	 });
+        console.log("---------------influencer page loaded-----------------------")
         try {
-            await page.waitForSelector('.dashboard-desktop-stat-value', { timeout: 10000 });
+            await page.waitForSelector('.dashboard-desktop-stat-value');
 
         } catch (error) {
-            console.log("---------Page Reload----------")
+            console.log("---------Page Reload----------", error)
             await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
             // await page.waitForSelector('#discover-list-grid .grid-item .a-declarative a', { timeout: 5000 });
         }
@@ -362,18 +370,23 @@ async function fetchInfo(page, amazonUrl) {
             userInfo.FoundItOnAmazon = 1
         } else if (userInfo.IdeaLists === 0)
             userInfo.FoundItOnAmazon = 0
-        console.log("--------------Scrapping Product List-----------------")
-        await page.goto(amazonUrl, {
-            waitUntil: 'networkidle0',
-            // Remove the timeout
-            timeout: 15000
-        });
+        console.log("--------------Scrapping Product List-----------------", amazonUrl);
         try {
-            await page.waitForSelector('.shop-affiliate-profile-logo-image', { timeout: 10000 });
+            await page.goto(amazonUrl, {
+                waitUntil: 'networkidle0',
+                // Remove the timeout
+                timeout: 30000
+            });
+        } catch (error) {
+            console.log(error);
+        }
+
+        try {
+            await page.waitForSelector('.shop-affiliate-profile-logo-image');
             let Categories = [];
             let IdeaUrls = [];
             if (userInfo.IdeaLists > 1) {
-                const ideaListsUrl = await page.$$eval('#discover-list-published-lists-grid .jetset-list-grid-item a', nodes => nodes.map(node => node.href));
+                const ideaListsUrl = await page.$$eval('#discover-list-published-lists-grid .jetset-list-grid-item a', nodes => nodes.map(node => node.href.replace('https://api.scraperapi.com', amazonUrl)));
                 console.log("--IdeaListsUrl--", ideaListsUrl);
 
                 for (const ideaListUrl of ideaListsUrl) {
@@ -381,7 +394,7 @@ async function fetchInfo(page, amazonUrl) {
                     await page.goto(ideaListUrl, {
                         waitUntil: 'networkidle0',
                         // Remove the timeout
-                        timeout: 15000
+                        timeout: 0
                     });
                     try {
                         await page.waitForSelector('#discover-list-grid .grid-item .a-declarative a', { timeout: 5000 });
@@ -402,6 +415,7 @@ async function fetchInfo(page, amazonUrl) {
             console.log("-----------------Request from Idea Urls-----------");
             console.log(IdeaUrls);
             for (const nodeUrl of IdeaUrls) {
+                console.log(nodeUrl)
                 const Category = await getCategory(nodeUrl);
                 if (Category)
                     Categories.push(Category);
@@ -419,9 +433,7 @@ async function fetchInfo(page, amazonUrl) {
         await page.reload({ waitUntil: ["networkidle0", "domcontentloaded"] });
     }
 }
-
 async function getAllShopsInfo() {
-//module.exports.scrape = async () => {
 
     const connection = mysql.createConnection({
         host: process.env.DB_HOST, // ip address of server running mysql
@@ -436,13 +448,15 @@ async function getAllShopsInfo() {
         console.error(error);
     }
     // amazonUrls = await getUrls();
-    //const executablePath = await extract();
-    console.log("Length of Amazon",await chrome.executablePath);
-    const browser = await puppeteer.launch({executablePath: '/usr/bin/google-chrome-stable',headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox']});
+    const executablePath = await extract();
+    console.log("Length of Amazon", amazonUrls.length);
+    const browser = await puppeteer.launch(process.env.NODE_ENV === 'development' ? {
+        headless: false
+    } : { executablePath: '/usr/bin/google-chrome-stable', headless: true, args: ['--no-sandbox', '--disable-setuid-sandbox'] });
     const page = await browser.newPage();
     // for (let i = 3; i < amazonUrls.length; i++) {
     //     const userInfo = await fetchInfo(page, amazonUrls[i]);
-    const userInfo = await fetchInfo(page, "https://www.w3schools.com/js/js_strict.asp");
+    const userInfo = await fetchInfo(page, BASE_URL + "https://www.amazon.com/shop/bnbob01");
     let amazonShops = {};
     let categoryJson = {};
     amazonShops.ShopURL = userInfo.ShopURL ? userInfo.ShopURL : "";
